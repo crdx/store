@@ -22,7 +22,8 @@ func main() {
     status, _ := store.Append("foo", "baz")
     status, _ := store.Delete("foo")
 
-    value, _  := store.Get("foo", "")
+    value, _  := store.Get("foo")
+    value, _  := store.GetOrDefault("foo", "(not set)")
 
     list, _ := store.List()
     for _, k := range list {
@@ -51,7 +52,11 @@ Appends a line to the current value of a key.
 
 Returns a human-readable string stating which action the server carried out.
 
-### `Get(key, defaultValue)`
+### `Get(key)`
+
+Returns the value of a key.
+
+### `GetOrDefault(key, defaultValue)`
 
 Returns the value of a key.
 

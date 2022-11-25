@@ -51,7 +51,7 @@ func (self Store) Set(key, value string) (string, error) {
 }
 
 func (self Store) Append(key, value string) (string, error) {
-	currentValue, err := self.Get(key, "")
+	currentValue, err := self.Get(key)
 
 	if err != nil {
 		return "", err
@@ -70,7 +70,21 @@ func (self Store) Append(key, value string) (string, error) {
 	return self.Set(key, newValue)
 }
 
-func (self Store) Get(key, defaultValue string) (string, error) {
+func (self Store) GetOrDefault(key, defaultValue string) (string, error) {
+	value, err := self.Get(key)
+
+	if err != nil {
+		return "", err
+	}
+
+	if value == "" {
+		return defaultValue, nil
+	}
+
+	return value, nil
+}
+
+func (self Store) Get(key string) (string, error) {
 	var res getResponse
 
 	err := self.httpClient().
@@ -86,13 +100,7 @@ func (self Store) Get(key, defaultValue string) (string, error) {
 		return "", fmt.Errorf("get: %s", res.Message)
 	}
 
-	value := strings.TrimSuffix(res.Value, "\n")
-
-	if value == "" {
-		return defaultValue, nil
-	}
-
-	return value, nil
+	return strings.TrimSuffix(res.Value, "\n"), nil
 }
 
 func (self Store) Delete(key string) (string, error) {
