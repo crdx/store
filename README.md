@@ -4,6 +4,12 @@
 
 It supports several primitive operations that can be used with any server that implements the API defined in the [API](#api) section.
 
+## Installation
+
+```sh
+go get github.com/crdx/store
+```
+
 ## Example
 
 Error handling has been omitted for the sake of brevity.
