@@ -23,6 +23,7 @@ func New(baseUrl string, apiToken string) *Store {
 		apiToken: apiToken,
 	}
 }
+
 func (self Store) httpClient() *requests.Builder {
 	return requests.URL(self.baseUrl).Bearer(self.apiToken)
 }
