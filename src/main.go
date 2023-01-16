@@ -14,7 +14,8 @@ type Store struct {
 }
 
 func New(baseUrl string, apiToken string) *Store {
-	// Ensure the baseUrl ends with a trailing slash so that relative paths are handled correctly.
+	// Ensure the baseUrl ends with a trailing slash so that relative paths are handled correctly
+	// by the Path method of carlmjohnson/requests.
 	baseUrl = strings.TrimRight(baseUrl, "/") + "/"
 
 	return &Store{
