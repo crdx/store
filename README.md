@@ -7,7 +7,7 @@ It supports several primitive operations that can be used with any server that i
 ## Installation
 
 ```sh
-go get github.com/crdx/store
+go get crdx.org/store
 ```
 
 ## Example
@@ -18,7 +18,7 @@ Error handling has been omitted for the sake of brevity.
 import (
     "fmt"
 
-    "github.com/crdx/store"
+    "crdx.org/store"
 )
 
 func main() {
