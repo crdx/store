@@ -10,7 +10,7 @@ It supports several primitive operations that can be used with any server that i
 go get crdx.org/store
 ```
 
-## Example
+## Usage
 
 Error handling has been omitted for the sake of brevity.
 
