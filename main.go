@@ -13,6 +13,8 @@ type Store struct {
 	apiToken string
 }
 
+// New instantiates and returns a [*Store] using baseUrl as the base URL and apiToken as the API
+// token.
 func New(baseUrl string, apiToken string) *Store {
 	// Ensure the baseUrl ends with a trailing slash so that relative paths are handled correctly
 	// by the Path method of carlmjohnson/requests.
@@ -24,10 +26,8 @@ func New(baseUrl string, apiToken string) *Store {
 	}
 }
 
-func (self Store) httpClient() *requests.Builder {
-	return requests.URL(self.baseUrl).Bearer(self.apiToken)
-}
-
+// Set sets the value of a key and returns a human-readable string stating which action the server
+// carried out.
 func (self Store) Set(key, value string) (string, error) {
 	var res baseResponse
 
@@ -52,6 +52,8 @@ func (self Store) Set(key, value string) (string, error) {
 	return res.Message, nil
 }
 
+// Append appends a line to the current value of a key and returns a human-readable string stating which
+// action the server carried out.
 func (self Store) Append(key, value string) (string, error) {
 	currentValue, err := self.Get(key)
 
@@ -72,6 +74,7 @@ func (self Store) Append(key, value string) (string, error) {
 	return self.Set(key, newValue)
 }
 
+// GetOrDefault returns the value of a key. If the value is empty then defaultValue is returned.
 func (self Store) GetOrDefault(key, defaultValue string) (string, error) {
 	value, err := self.Get(key)
 
@@ -86,6 +89,7 @@ func (self Store) GetOrDefault(key, defaultValue string) (string, error) {
 	return value, nil
 }
 
+// Get returns the value of a key.
 func (self Store) Get(key string) (string, error) {
 	var res getResponse
 
@@ -105,6 +109,8 @@ func (self Store) Get(key string) (string, error) {
 	return strings.TrimSuffix(res.Value, "\n"), nil
 }
 
+// Delete deletes a key and returns a human-readable string stating which action the server carried
+// out.
 func (self Store) Delete(key string) (string, error) {
 	var res baseResponse
 
@@ -125,6 +131,7 @@ func (self Store) Delete(key string) (string, error) {
 	return res.Message, nil
 }
 
+// List returns a slice containing each of the keys currently stored.
 func (self Store) List() ([]string, error) {
 	var res listResponse
 
@@ -146,4 +153,10 @@ func (self Store) List() ([]string, error) {
 	}
 
 	return items, nil
+}
+
+// —————————————————————————————————————————————————————————————————————————————————————————————————
+
+func (self Store) httpClient() *requests.Builder {
+	return requests.URL(self.baseUrl).Bearer(self.apiToken)
 }
