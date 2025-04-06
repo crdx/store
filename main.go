@@ -40,7 +40,6 @@ func (self Store) Set(key, value string) (string, error) {
 		BodyJSON(&req).
 		ToJSON(&res).
 		Fetch(context.Background())
-
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +55,6 @@ func (self Store) Set(key, value string) (string, error) {
 // action the server carried out.
 func (self Store) Append(key, value string) (string, error) {
 	currentValue, err := self.Get(key)
-
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +75,6 @@ func (self Store) Append(key, value string) (string, error) {
 // GetOrDefault returns the value of a key. If the value is empty then defaultValue is returned.
 func (self Store) GetOrDefault(key, defaultValue string) (string, error) {
 	value, err := self.Get(key)
-
 	if err != nil {
 		return "", err
 	}
@@ -97,7 +94,6 @@ func (self Store) Get(key string) (string, error) {
 		Path(key).
 		ToJSON(&res).
 		Fetch(context.Background())
-
 	if err != nil {
 		return "", err
 	}
@@ -119,7 +115,6 @@ func (self Store) Delete(key string) (string, error) {
 		Path(key).
 		ToJSON(&res).
 		Fetch(context.Background())
-
 	if err != nil {
 		return "", err
 	}
@@ -138,7 +133,6 @@ func (self Store) List() ([]string, error) {
 	err := self.httpClient().
 		ToJSON(&res).
 		Fetch(context.Background())
-
 	if err != nil {
 		return nil, err
 	}
