@@ -1,6 +1,6 @@
 module crdx.org/store
 
-go 1.20
+go 1.24
 
 require github.com/carlmjohnson/requests v0.23.5
 
