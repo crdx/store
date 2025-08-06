@@ -7,6 +7,7 @@ type baseResponse struct {
 
 type listResponse struct {
 	baseResponse
+
 	Items []listItem `json:"items"`
 }
 
@@ -16,6 +17,7 @@ type listItem struct {
 
 type getResponse struct {
 	baseResponse
+
 	Value string `json:"value"`
 }
 
