@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0] - 2026-10-01
+
+### Changed
+
+- Increase minimum Go version to 1.24
+
+### Removed
+
+- Remove dependency on `github.com/carlmjohnson/requests`
+
 ## [1.1.0] - 2023-02-03
 
 ### Changed
