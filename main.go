@@ -1,11 +1,13 @@
 package store
 
 import (
-	"context"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"strings"
-
-	"github.com/carlmjohnson/requests"
 )
 
 type Store struct {
@@ -16,8 +18,8 @@ type Store struct {
 // New instantiates and returns a [*Store] using baseUrl as the base URL and apiToken as the API
 // token.
 func New(baseUrl string, apiToken string) *Store {
-	// Ensure the baseUrl ends with a trailing slash so that relative paths are handled correctly
-	// by the Path method of carlmjohnson/requests.
+	// Ensure the baseUrl ends with a trailing slash so that keys are resolved relative to it rather
+	// than replacing its final path segment.
 	baseUrl = strings.TrimRight(baseUrl, "/") + "/"
 
 	return &Store{
@@ -35,11 +37,7 @@ func (self Store) Set(key, value string) (string, error) {
 		Value: value,
 	}
 
-	err := self.httpClient().
-		Path(key).
-		BodyJSON(&req).
-		ToJSON(&res).
-		Fetch(context.Background())
+	err := self.request(http.MethodPost, key, &req, &res)
 	if err != nil {
 		return "", err
 	}
@@ -90,10 +88,7 @@ func (self Store) GetOrDefault(key, defaultValue string) (string, error) {
 func (self Store) Get(key string) (string, error) {
 	var res getResponse
 
-	err := self.httpClient().
-		Path(key).
-		ToJSON(&res).
-		Fetch(context.Background())
+	err := self.request(http.MethodGet, key, nil, &res)
 	if err != nil {
 		return "", err
 	}
@@ -110,11 +105,7 @@ func (self Store) Get(key string) (string, error) {
 func (self Store) Delete(key string) (string, error) {
 	var res baseResponse
 
-	err := self.httpClient().
-		Delete().
-		Path(key).
-		ToJSON(&res).
-		Fetch(context.Background())
+	err := self.request(http.MethodDelete, key, nil, &res)
 	if err != nil {
 		return "", err
 	}
@@ -130,9 +121,7 @@ func (self Store) Delete(key string) (string, error) {
 func (self Store) List() ([]string, error) {
 	var res listResponse
 
-	err := self.httpClient().
-		ToJSON(&res).
-		Fetch(context.Background())
+	err := self.request(http.MethodGet, "", nil, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +138,51 @@ func (self Store) List() ([]string, error) {
 	return items, nil
 }
 
-// —————————————————————————————————————————————————————————————————————————————————————————————————
+func (self Store) request(method, key string, requestBody, responseBody any) error {
+	requestUrl, err := url.Parse(self.baseUrl)
+	if err != nil {
+		return err
+	}
 
-func (self Store) httpClient() *requests.Builder {
-	return requests.URL(self.baseUrl).Bearer(self.apiToken)
+	if key != "" {
+		requestUrl, err = requestUrl.Parse(key)
+		if err != nil {
+			return err
+		}
+	}
+
+	var body io.Reader
+
+	if requestBody != nil {
+		encoded, err := json.Marshal(requestBody)
+		if err != nil {
+			return err
+		}
+
+		body = bytes.NewReader(encoded)
+	}
+
+	request, err := http.NewRequest(method, requestUrl.String(), body)
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Authorization", "Bearer "+self.apiToken)
+	request.Header.Set("Accept", "application/json")
+
+	if requestBody != nil {
+		request.Header.Set("Content-Type", "application/json")
+	}
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = response.Body.Close() }()
+
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return fmt.Errorf("response error for %s: unexpected status: %d", requestUrl, response.StatusCode)
+	}
+
+	return json.NewDecoder(response.Body).Decode(responseBody)
 }
